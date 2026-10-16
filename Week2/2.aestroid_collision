@@ -1,0 +1,99 @@
+
+02. ASTEROID COLLISION
+
+
+1. Problem Statement
+
+Given an array of asteroids, determine which asteroids survive after all collisions.
+
+Positive values move right and negative values move left. The absolute value represents the size. The smaller asteroid is destroyed, and if both sizes are equal, both are destroyed.
+
+Example:
+Input: [10, 2, -5]
+Output: [10]
+
+2. Brute-Force Approach
+
+Repeatedly find adjacent asteroids moving toward each other, resolve their collision, and repeat until no collisions remain.
+
+Complexity:
+Time: O(n^2)
+Auxiliary Space: O(n)
+
+3. Optimized Approach: Stack
+
+Use a stack to store surviving asteroids. A collision occurs only when the stack top is positive and the incoming asteroid is negative.
+
+Code:
+
+#include <iostream>
+#include <vector>
+using namespace std;
+
+vector<int> asteroidCollision(vector<int>& asteroids) {
+    vector<int> st;
+
+    for (int cur : asteroids) {
+        bool alive = true;
+
+        while (!st.empty() && st.back() > 0 && cur < 0) {
+            long long topSize = st.back();
+            long long curSize = -(long long)cur;
+
+            if (topSize < curSize) {
+                st.pop_back();
+                continue;
+            }
+
+            if (topSize == curSize) {
+                st.pop_back();
+            }
+
+            alive = false;
+            break;
+        }
+
+        if (alive) {
+            st.push_back(cur);
+        }
+    }
+
+    return st;
+}
+
+int main() {
+    vector<int> asteroids = {10, 2, -5};
+    vector<int> ans = asteroidCollision(asteroids);
+
+    for (int x : ans) {
+        cout << x << " ";
+    }
+
+    return 0;
+}
+
+4. Dry Run
+
+Input: [10, 2, -5]
+
+Step 1: Push 10 -> [10]
+Step 2: Push 2 -> [10, 2]
+Step 3: -5 destroys 2 -> [10]
+Step 4: -5 loses to 10 -> [10]
+
+Output: [10]
+
+5. Complexity
+
+Time: O(n)
+Auxiliary Space: O(n)
+
+Each asteroid is pushed once and popped at most once.
+
+6. Edge Cases
+
+[8, -8] -> []
+[5, -10] -> [-10]
+[-2, -1, 1, 2] -> [-2, -1, 1, 2]
+[1, 2, 3, -10] -> [-10]
+[-2, 2] -> [-2, 2]
