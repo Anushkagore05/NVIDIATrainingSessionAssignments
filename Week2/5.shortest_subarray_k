@@ -1,0 +1,122 @@
+
+05. SHORTEST SUBARRAY REACHING K
+
+Slide: 30
+Topic: Prefix Sum and Monotonic Deque
+
+1. Problem Statement
+
+Given an integer array and a target K, find the length of the shortest non-empty contiguous subarray whose sum is at least K.
+
+Negative numbers are allowed. Return -1 if no valid subarray exists.
+
+Example:
+Input: a = [2, -1, 2, -1, 2, 3], K = 5
+Output: 2
+
+The subarray [2, 3] has sum 5.
+
+2. Brute-Force Approach
+
+Try every starting position and extend the subarray while maintaining its sum. Whenever the sum is at least K, update the shortest length.
+
+Code:
+
+#include <iostream>
+#include <vector>
+#include <climits>
+#include <algorithm>
+using namespace std;
+
+int shortestBrute(vector<int>& a, long long K) {
+    int n = a.size();
+    int best = INT_MAX;
+
+    for (int i = 0; i < n; i++) {
+        long long sum = 0;
+
+        for (int j = i; j < n; j++) {
+            sum += a[j];
+
+            if (sum >= K) {
+                best = min(best, j - i + 1);
+            }
+        }
+    }
+
+    return best == INT_MAX ? -1 : best;
+}
+
+Complexity:
+Time: O(n^2)
+Auxiliary Space: O(1)
+
+3. Optimized Approach: Prefix Sum and Monotonic Deque
+
+Create a prefix sum array. A subarray from prefix index j to i has sum pref[i] - pref[j].
+
+Maintain a deque of indices with increasing prefix sums.
+
+- If the current prefix minus the front prefix is at least K, update the shortest length and remove the front.
+- While the current prefix is less than or equal to the prefix at the back, remove the back.
+- Add the current index.
+
+Code:
+
+#include <iostream>
+#include <vector>
+#include <deque>
+#include <climits>
+#include <algorithm>
+using namespace std;
+
+int shortestSubarray(vector<int>& a, long long K) {
+    int n = a.size();
+    vector<long long> pref(n + 1, 0);
+
+    for (int i = 0; i < n; i++) {
+        pref[i + 1] = pref[i] + a[i];
+    }
+
+    deque<int> dq;
+    int best = INT_MAX;
+
+    for (int i = 0; i <= n; i++) {
+        while (!dq.empty() &&
+               pref[i] - pref[dq.front()] >= K) {
+            best = min(best, i - dq.front());
+            dq.pop_front();
+        }
+
+        while (!dq.empty() &&
+               pref[i] <= pref[dq.back()]) {
+            dq.pop_back();
+        }
+
+        dq.push_back(i);
+    }
+
+    return best == INT_MAX ? -1 : best;
+}
+
+int main() {
+    vector<int> a = {2, -1, 2, -1, 2, 3};
+
+    cout << shortestSubarray(a, 5);
+
+    return 0;
+}
+
+4. Complexity
+
+Time: O(n)
+Auxiliary Space: O(n)
+
+Each index enters and leaves the deque at most once.
+
+5. Edge Cases
+
+[1, -1, 1], K = 4 -> -1
+[5], K = 5 -> 1
+[2, -1, 2], K = 3 -> 3
+[1, 2], K = 2 -> 1
