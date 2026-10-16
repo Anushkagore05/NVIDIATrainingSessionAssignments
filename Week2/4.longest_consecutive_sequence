@@ -1,0 +1,87 @@
+
+04. LONGEST CONSECUTIVE SEQUENCE
+
+1. Problem Statement
+
+Given an unsorted array, find the length of the longest sequence of consecutive values. The values do not need to be adjacent in the original array.
+
+Example:
+Input: [100, 4, 200, 1, 3, 2]
+Output: 4
+
+The longest sequence is [1, 2, 3, 4].
+
+2. Brute-Force Approach
+
+For every element, repeatedly search the array for the next consecutive value.
+
+Complexity:
+Time: O(n^2)
+Auxiliary Space: O(1)
+
+3. Approach B: Sorting
+
+Sort the array and scan it, ignoring duplicates and counting consecutive values.
+
+Complexity:
+Time: O(n log n)
+Auxiliary Space: Typically O(log n) for the sorting stack.
+
+4. Optimized Approach: Hash Set
+
+Store all values in an unordered_set. Start counting only when the current value has no predecessor in the set.
+
+Code:
+
+#include <iostream>
+#include <vector>
+#include <unordered_set>
+#include <algorithm>
+#include <climits>
+using namespace std;
+
+int longestConsecutive(vector<int>& a) {
+    unordered_set<int> values(a.begin(), a.end());
+    int best = 0;
+
+    for (int x : values) {
+        if (x != INT_MIN && values.count(x - 1)) {
+            continue;
+        }
+
+        int current = x;
+        int length = 1;
+
+        while (current != INT_MAX &&
+               values.count(current + 1)) {
+            current++;
+            length++;
+        }
+
+        best = max(best, length);
+    }
+
+    return best;
+}
+
+int main() {
+    vector<int> a = {100, 4, 200, 1, 3, 2};
+
+    cout << longestConsecutive(a);
+
+    return 0;
+}
+
+5. Complexity
+
+Expected Time: O(n)
+Auxiliary Space: O(n)
+
+Worst-case time with pathological hash collisions: O(n^2).
+
+6. Edge Cases
+
+[] -> 0
+[5] -> 1
+[1, 2, 2, 3] -> 3
+[9, 1, 4, 7, 3, 2, 6, 8] -> 8
