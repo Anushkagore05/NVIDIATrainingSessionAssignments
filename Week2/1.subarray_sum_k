@@ -1,16 +1,24 @@
+
+01. NUMBER OF SUBARRAYS WITH SUM K
+
+
 1. Problem Statement
 
 Given an integer array and a target k, count the number of non-empty contiguous subarrays whose sum equals k. The array may contain negative numbers.
 
-Example
-
+Example:
 Input: nums = [1, -1, 1], k = 1
-
 Output: 3
 
 2. Brute-Force Approach
 
 Try every starting index and extend the subarray while maintaining its sum. Whenever the sum equals k, increase the count.
+
+Code:
+
+#include <iostream>
+#include <vector>
+using namespace std;
 
 int subarraySumBrute(vector<int>& nums, int k) {
     int count = 0;
@@ -21,30 +29,32 @@ int subarraySumBrute(vector<int>& nums, int k) {
         for (int j = i; j < nums.size(); j++) {
             sum += nums[j];
 
-            if (sum == k)
+            if (sum == k) {
                 count++;
+            }
         }
     }
 
     return count;
 }
 
-Complexity
-
-Time: O(n²)
-
-Auxiliary space: O(1)
+Complexity:
+Time: O(n^2)
+Auxiliary Space: O(1)
 
 3. Optimized Approach: Prefix Sum + Frequency Map
 
-Let sum be the prefix sum up to the current element.
+If an earlier prefix sum equals the current sum minus k, the elements between them form a subarray with sum k.
 
-If an earlier prefix sum equals sum - k, the elements between that earlier prefix and the current position form a subarray with sum k.
+Code:
 
-Store the frequencies of previous prefix sums in a hash map.
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+using namespace std;
 
-int subarraySum(vector<int>& nums, int k) {
-    unordered_map<long long, int> freq;
+long long subarraySum(vector<int>& nums, long long k) {
+    unordered_map<long long, long long> freq;
     freq[0] = 1;
 
     long long sum = 0;
@@ -59,28 +69,26 @@ int subarraySum(vector<int>& nums, int k) {
     return count;
 }
 
-Complexity
+int main() {
+    vector<int> nums = {1, -1, 1};
+    cout << subarraySum(nums, 1);
+    return 0;
+}
 
-Expected time: O(n)
-
-Auxiliary space: O(n)
-
-Worst-case time with pathological hash collisions: O(n²)
+Complexity:
+Expected Time: O(n)
+Auxiliary Space: O(n)
 
 4. Why This Works
 
-Instead of checking every possible subarray, we count how many earlier prefix sums can form the required sum with the current prefix.
+We store the frequency of every prefix sum. This allows us to count valid subarrays without checking every possible subarray.
 
 We initialize freq[0] = 1 to count subarrays that start at index zero.
 
 5. Edge Cases
 
-Empty array → 0
-
-[5], k = 5 → 1
-
-[0, 0, 0], k = 0 → 6
-
-[1, -1, 1], k = 1 → 3
-
-[1, 2, 3], k = 7 → 0
+Empty array -> 0
+[5], k = 5 -> 1
+[0, 0, 0], k = 0 -> 6
+[1, -1, 1], k = 1 -> 3
+[1, 2, 3], k = 7 -> 0
