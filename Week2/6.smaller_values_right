@@ -1,0 +1,134 @@
+
+06. SMALLER VALUES TO THE RIGHT
+1. Problem Statement
+
+For each element a[i], count how many elements to its right are strictly smaller than it. Equal values do not count.
+
+Example:
+Input: [5, 2, 6, 1, 2]
+
+The slide lists [3, 1, 2, 0, 0]. However, the written rule gives [3, 1, 3, 0, 0], because 1, 2 and 2 are all smaller than 6.
+
+2. Brute-Force Approach
+
+For every element, check every element to its right.
+
+Code:
+
+#include <iostream>
+#include <vector>
+using namespace std;
+
+vector<int> smallerRightBrute(vector<int>& a) {
+    int n = a.size();
+    vector<int> ans(n, 0);
+
+    for (int i = 0; i < n; i++) {
+        for (int j = i + 1; j < n; j++) {
+            if (a[j] < a[i]) {
+                ans[i]++;
+            }
+        }
+    }
+
+    return ans;
+}
+
+Complexity:
+Time: O(n^2)
+Auxiliary Space: O(1), excluding the output array.
+
+3. Optimized Approach: Merge Sort
+
+Store each element with its original index. During merging, count how many right-half elements are smaller than each left-half element. Add that count to the answer for the original index.
+
+Code:
+
+#include <iostream>
+#include <vector>
+#include <utility>
+using namespace std;
+
+void mergeCount(vector<pair<int, int>>& a,
+                vector<pair<int, int>>& temp,
+                vector<int>& ans, int left, int right) {
+    if (left >= right) {
+        return;
+    }
+
+    int mid = left + (right - left) / 2;
+
+    mergeCount(a, temp, ans, left, mid);
+    mergeCount(a, temp, ans, mid + 1, right);
+
+    int i = left;
+    int j = mid + 1;
+    int k = left;
+    int smaller = 0;
+
+    while (i <= mid && j <= right) {
+        if (a[j].first < a[i].first) {
+            temp[k++] = a[j++];
+            smaller++;
+        } else {
+            ans[a[i].second] += smaller;
+            temp[k++] = a[i++];
+        }
+    }
+
+    while (i <= mid) {
+        ans[a[i].second] += smaller;
+        temp[k++] = a[i++];
+    }
+
+    while (j <= right) {
+        temp[k++] = a[j++];
+    }
+
+    for (int p = left; p <= right; p++) {
+        a[p] = temp[p];
+    }
+}
+
+vector<int> smallerRight(vector<int>& nums) {
+    int n = nums.size();
+    vector<int> ans(n, 0);
+
+    if (n == 0) {
+        return ans;
+    }
+
+    vector<pair<int, int>> a(n), temp(n);
+
+    for (int i = 0; i < n; i++) {
+        a[i] = {nums[i], i};
+    }
+
+    mergeCount(a, temp, ans, 0, n - 1);
+
+    return ans;
+}
+
+int main() {
+    vector<int> a = {5, 2, 6, 1, 2};
+    vector<int> ans = smallerRight(a);
+
+    for (int x : ans) {
+        cout << x << " ";
+    }
+
+    return 0;
+}
+
+4. Complexity
+
+Time: O(n log n)
+Auxiliary Space: O(n), including temporary storage and recursion stack.
+
+5. Edge Cases
+
+[] -> []
+[2, 2] -> [0, 0]
+[3, 2, 1] -> [2, 1, 0]
+[1, 2, 3] -> [0, 0, 0]
+[5, 2, 6, 1, 2] -> [3, 1, 3, 0, 0]
